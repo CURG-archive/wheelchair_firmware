@@ -4,6 +4,7 @@
 #include <sensor_msgs/Range.h>
 #include <geometry_msgs/Twist.h>
 #include <PWM.h>
+#include <limits>
 #include <NewPing.h>
 #include "wheelchair.h"
 
@@ -91,6 +92,14 @@ void setup() {
     right_sonar_msg.header.frame_id = right_frame;
 }
 
+float convert_sonar(int range) {
+    if (range == 0) {
+        return INFINITY;
+    } else {
+        return range * 0.01;
+    }
+}
+
 void loop() {
     nh.spinOnce();
 
@@ -113,9 +122,9 @@ void loop() {
         center_sonar_msg.header.stamp = now;
         right_sonar_msg.header.stamp = now;
 
-        left_sonar_msg.range = left_sonar.ping_cm() * 0.01;
-        center_sonar_msg.range = center_sonar.ping_cm() * 0.01;
-        right_sonar_msg.range = right_sonar.ping_cm() * 0.01;
+        left_sonar_msg.range = convert_sonar(left_sonar.ping_cm());
+        center_sonar_msg.range = convert_sonar(center_sonar.ping_cm());
+        right_sonar_msg.range = convert_sonar(right_sonar.ping_cm());
 
         left_sonar_pub.publish(&left_sonar_msg);
         center_sonar_pub.publish(&center_sonar_msg);
